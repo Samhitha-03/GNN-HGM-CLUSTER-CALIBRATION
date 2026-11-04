@@ -1,0 +1,23 @@
+jet:
+  jetRawE: {mean: 0.0, std: 1.0}
+  jetRawPt: {mean: 0.0, std: 1.0}
+  jetRawEta: {mean: 0.0, std: 1.0}
+  nPrimVtx: {mean: 0.0, std: 1.0}
+  avgMu: {mean: 0.0, std: 1.0}
+  jetCalE: {mean: 0.0, std: 1.0}
+
+clusters:
+  clusterE: {mean: 0.0, std: 1.0}
+  clusterEta: {mean: 0.0, std: 1.0}
+  cluster_SIGNIFICANCE: {mean: 0.0, std: 1.0}
+  cluster_time: {mean: 0.0, std: 1.0}
+  cluster_SECOND_TIME: {mean: 0.0, std: 1.0}
+  cluster_CENTER_LAMBDA: {mean: 0.0, std: 1.0}
+  cluster_CENTER_MAG: {mean: 0.0, std: 1.0}
+  cluster_ENG_FRAC_EM_INCL: {mean: 0.0, std: 1.0}
+  cluster_FIRST_ENG_DENS: {mean: 0.0, std: 1.0}
+  cluster_LONGITUDINAL: {mean: 0.0, std: 1.0}
+  cluster_LATERAL: {mean: 0.0, std: 1.0}
+  cluster_PTD: {mean: 0.0, std: 1.0}
+  cluster_ISOLATION: {mean: 0.0, std: 1.0}
+  cluster_ENG_CALIB_TOT: {mean: 0.0, std: 1.0}
