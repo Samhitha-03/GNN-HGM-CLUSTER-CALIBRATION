@@ -1,0 +1,157 @@
+name: gnn_hgm_gmm_regression
+
+model:
+  lrs_config:
+    initial: 1e-7
+    max: 1e-4
+    end: 1e-7
+    pct_start: 0.1
+    weight_decay: 1e-5
+    last_epoch: -1
+
+  model:
+    class_path: salt.models.SaltModel
+    init_args:
+
+      
+      init_nets:
+        - input_name: clusters
+          dense_config:
+            input_size: 19
+            output_size: &embed_dim 128
+            hidden_layers: [256]
+            activation: &activation SiLU
+
+ 
+      pool_net:
+        class_path: salt.models.GlobalAttentionPooling
+        init_args:
+          input_size: *embed_dim
+
+     
+      tasks:
+        class_path: torch.nn.ModuleList
+        init_args:
+          modules:
+            - class_path: salt.models.GaussianMixtureRegressionTask
+              init_args:
+
+                name: cluster_hgm_gmm_regression
+                input_name: clusters
+
+                # Regression target
+                targets:
+                  - cluster_ENG_CALIB_TOT
+
+             
+                n_components: 3
+                point_estimate: best_component
+
+               
+                norm_params:
+                  mean:
+                    - 5.4921
+                  std:
+                    - 66.0719
+
+              
+                loss:
+                  class_path: torch.nn.MSELoss
+
+              
+                
+                dense_config:
+                  input_size: *embed_dim
+                  output_size: 9
+                  hidden_layers: [128, 64, 32]
+                  activation: *activation
+
+
+
+data:
+  class_dict: class_dict.yaml
+  norm_dict: norm_dict.yaml
+
+  global_object: jet
+
+  train_file: /nfs/mahler_2/jhubuserdirs/gu_parackal/salt/salt/processed_dataset/mc20_v1/train/*.h5
+
+  val_file: /nfs/mahler_2/jhubuserdirs/gu_parackal/salt/salt/processed_dataset/mc20_v1/val/*.h5
+
+  batch_size: 256
+  num_workers: 4
+
+  num_train: -1
+  num_val: -1
+
+  variables:
+
+   
+    jet:
+      - jetRawE
+      - jetRawPt
+      - jetRawEta
+      - nPrimVtx
+      - avgMu
+      - jetCalE
+
+    
+    clusters:
+      - clusterE
+      - clusterEta
+      - cluster_SIGNIFICANCE
+      - cluster_time
+      - cluster_SECOND_TIME
+      - cluster_CENTER_LAMBDA
+      - cluster_CENTER_MAG
+      - cluster_ENG_FRAC_EM_INCL
+      - cluster_FIRST_ENG_DENS
+      - cluster_LONGITUDINAL
+      - cluster_LATERAL
+      - cluster_PTD
+      - cluster_ISOLATION
+
+
+
+trainer:
+
+  logger:
+    class_path: lightning.pytorch.loggers.CometLogger
+    init_args:
+      project: salt-pileup-regression
+
+  # HGM training
+  max_epochs: 30
+
+  accelerator: gpu
+  devices: [0]
+
+  # Useful for mixture-model training stability
+  gradient_clip_val: 1.0
+
+  log_every_n_steps: 50
+
+  default_root_dir: /nfs/mahler_2/jhubuserdirs/gu_parackal/salt/salt/logs
+
+  callbacks:
+
+   
+    - class_path: salt.callbacks.Checkpoint
+      init_args:
+        monitor_loss: val/cluster_hgm_gmm_regression_loss
+
+   
+    - class_path: salt.callbacks.PredictionWriter
+
+   
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+
+  
+    - class_path: lightning.pytorch.callbacks.TQDMProgressBar
+      init_args:
+        refresh_rate: 50
+
+  
+    - class_path: lightning.pytorch.callbacks.ModelSummary
+      init_args:
+        max_depth: 2
